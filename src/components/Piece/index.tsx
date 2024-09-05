@@ -1,10 +1,10 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import { css } from "@emotion/react";
 import king from "../../assets/king.png";
 import pawn from "../../assets/pawn.png";
+import { useEffect, useRef, useState } from "react";
+import invariant from "tiny-invariant";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { Coord, PieceType } from "../Chessboard";
 
 const imageStyles = css({
   width: 45,
@@ -18,19 +18,48 @@ const imageStyles = css({
   },
 });
 
+const hidePieceStyles = css({
+  opacity: 0.5,
+});
+
 type PieceProps = {
   image: string;
   alt: string;
+  location: Coord;
+  pieceType: PieceType;
 };
 
-const Piece = ({ image, alt }: PieceProps) => {
-  return <img css={imageStyles} src={image} draggable="false" alt={alt} />;
+const Piece = ({ image, alt, location, pieceType }: PieceProps) => {
+  const ref = useRef(null);
+  const [dragging, setDragging] = useState<boolean>(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    invariant(el);
+
+    return draggable({
+      element: el,
+      getInitialData: () => ({ location, pieceType }),
+      onDragStart: () => setDragging(true),
+      onDrop: () => setDragging(false),
+    });
+  });
+
+  return (
+    <img
+      css={[dragging && hidePieceStyles, imageStyles]}
+      src={image}
+      draggable="false"
+      alt={alt}
+      ref={ref}
+    />
+  );
 };
 
-export const King = () => {
-  return <Piece image={king} alt="king" />;
+export const King = ({ location }: { location: Coord }) => {
+  return <Piece pieceType="king" location={location} image={king} alt="king" />;
 };
 
-export const Pawn = () => {
-  return <Piece image={pawn} alt="king" />;
+export const Pawn = ({ location }: { location: Coord }) => {
+  return <Piece image={pawn} alt="pawn" pieceType="pawn" location={location} />;
 };

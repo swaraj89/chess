@@ -4,6 +4,7 @@
  */
 import { css } from "@emotion/react";
 import { isEqualCoord, pieceLookup } from "../../utils/helper";
+import Square from "./Square";
 
 export type Coord = [number, number];
 
@@ -23,14 +24,6 @@ const chessboardStyles = css({
   border: "3px solid lightgrey",
 });
 
-const squareStyles = css({
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-});
-
 function renderSquares(pieces: PieceRecord[]) {
   const squares = [];
 
@@ -42,16 +35,10 @@ function renderSquares(pieces: PieceRecord[]) {
         isEqualCoord(piece.location, squareCorod)
       );
 
-      const isDark = (row + col) % 2 === 1;
-
       squares.push(
-        <div
-          css={squareStyles}
-          style={{ backgroundColor: isDark ? "lightgrey" : "white" }}
-          key={`${row}-${col}`}
-        >
-          {piece && pieceLookup[piece.type]()}
-        </div>
+        <Square pieces={pieces} location={squareCorod} key={`${row}-${col}`}>
+          {piece && pieceLookup[piece.type](squareCorod)}
+        </Square>
       );
     }
   }
@@ -64,6 +51,8 @@ const Chessboard = () => {
     { type: "king", location: [3, 2] },
     { type: "pawn", location: [1, 6] },
   ];
+
+  console.log(renderSquares(pieces));
 
   return <div css={chessboardStyles}>{renderSquares(pieces)}</div>;
 };
